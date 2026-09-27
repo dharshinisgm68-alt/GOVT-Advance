@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title><link rel="stylesheet" href="/static/style.css"></head>
+<body><div class="container">
+<header><h1>⚙️ Admin Dashboard</h1><p>Upload scheme documents and rebuild the RAG knowledge base.</p></header>
+<section class="card"><h2>Upload Scheme Document</h2>
+<form id="adminUploadForm"><input id="file" type="file" accept=".pdf,.txt" required><button type="submit">Upload & Index</button></form>
+<p id="status"></p><hr><button id="rebuildButton">🔄 Rebuild Knowledge Base</button>
+<p class="note">Public users cannot access this upload form.</p></section>
+<footer><a href="/">Public Chatbot</a> | <a href="/admin/logout">Logout</a></footer>
+</div>
+<script>
+const form=document.getElementById("adminUploadForm"), status=document.getElementById("status"), rebuild=document.getElementById("rebuildButton");
+form.addEventListener("submit",async(e)=>{e.preventDefault();const file=document.getElementById("file").files[0];if(!file){status.textContent="Please select a file.";return;}
+const fd=new FormData();fd.append("file",file);status.textContent="Uploading and indexing...";
+try{const r=await fetch("/admin/upload",{method:"POST",body:fd});const d=await r.json();status.textContent=r.ok&&!d.error?"✅ "+d.message:"❌ "+(d.error||"Upload failed.");}catch(err){status.textContent="❌ "+err.message;}});
+rebuild.addEventListener("click",async()=>{status.textContent="Rebuilding...";try{const r=await fetch("/admin/rebuild",{method:"POST"});const d=await r.json();status.textContent=r.ok&&!d.error?"✅ "+d.message:"❌ "+(d.error||"Rebuild failed.");}catch(err){status.textContent="❌ "+err.message;}});
+</script></body></html>
